@@ -73,10 +73,52 @@
          out vec4 fragColor;
 
          void main(void) {
-             fragColor = texture (theTexture, theUV);
+           
+            
+          fragColor = texture (theTexture, theUV);
+          
+           
+             
          }
 
     </script>
+
+    <!-- fragment Shader -->
+    <script id="sphereMap-E" type="x-shader/x-fragment">
+      #version 300 es
+
+      // Fragment shader for phong illumination model
+      // Per vertex shading
+
+      precision lowp float;
+          
+      // uvs passed in from vertex shader
+      in vec2 theUV;
+      
+      // the texture to use
+      uniform sampler2D theTexture;
+
+      // Color that is the result of this shader
+      out vec4 fragColor;
+
+      void main(void) {
+        
+         
+        //fragColor = vec4(vec3(step(theUV.t + theUV.s, 1.5)), 0.5);
+        //fragColor = vec4(vec3(mod(theUV.t + theUV.s, 0.1)), 0.5);
+        fragColor = vec4(vec3(step(mod(theUV.t + theUV.s, 0.1), 0.05)), 0.5);
+        
+       
+        
+       
+        
+          
+      }
+
+ </script>
+
+
+    
      
      <!-- Matrix library and code for standard transformations -->
      <script type="text/javascript" src="gl-matrix-min.js"></script>
@@ -92,6 +134,9 @@
     
     <!-- texture images -->
     <img id="world-texture" src="1_earth_16k.jpg" style="display: none;"> </img>
+
+    <!-- texture images -->
+    <img id="my-texture" src="2.jpg" style="display: none;"> </img>
     
     <!-- keyboard functions -->
     <script type="text/javascript">

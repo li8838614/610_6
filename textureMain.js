@@ -5,11 +5,11 @@
   let gl;
 
   // The programs
-  let sphereGlobeProgram;
+  let sphereGlobeProgram,sphereGlobeProgram2;
 
   // the textures
   let worldTexture;
-  
+  let myTexture;
   // VAOs for the objects
   var mySphere = null;
   var myCube = null;
@@ -42,6 +42,7 @@ function setUpTextures(){
     
     // load the actual image
     var worldImage = document.getElementById ('world-texture')
+   
     worldImage.crossOrigin = "";
     worldImage.onload = () =>{
         
@@ -55,6 +56,40 @@ function setUpTextures(){
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);}
+
+    // get some texture space from the gpu
+    myTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, myTexture);
+    
+    // load the actual image
+    var myImage = document.getElementById ('my-texture')
+   
+    myImage.crossOrigin = "";
+    myImage.onload = () =>{
+        
+    // bind the texture so we can perform operations on it
+    gl.bindTexture (gl.TEXTURE_2D, myTexture);
+        
+    // load the texture data
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, myImage.width, myImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, myImage);
+        
+    // set texturing parameters
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);}
+    
+    
+
+    
+
+    
+
+
+
+
+
+
+    
 }
 
 //
@@ -70,17 +105,21 @@ function drawCurrentShape () {
     // may need to set different parameters based on the texture
     // you are using...The current texture is found in the global variable
     // curTexture.   If will have the value of "globe", "myimage" or "proc"
-    
+    var texture=worldTexture
+    if (curTexture=="myimage"){
+      texture=myTexture;
+    }
+
     // which program are we using
     var program = sphereGlobeProgram;
-    
+    if (curTexture=="proc") {program=sphereGlobeProgram2;}
     // set up your uniform variables for drawing
     gl.useProgram (program);
     
     // set up texture uniform & other uniforms that you might
     // have added to the shader
     gl.activeTexture (gl.TEXTURE0);
-    gl.bindTexture (gl.TEXTURE_2D, worldTexture);
+    gl.bindTexture (gl.TEXTURE_2D, texture);
     gl.uniform1i (program.uTheTexture, 0);
     
     // set up rotation uniform
@@ -98,13 +137,21 @@ function initProgram (vertexid, fragmentid) {
   // set up the per-vertex program
   const vertexShader = getShader(vertexid);
   const fragmentShader = getShader(fragmentid);
+ 
+ 
+  
+  
+  
+  
 
   // Create a program
   let program = gl.createProgram();
   
   // Attach the shaders to this program
   gl.attachShader(program, vertexShader);
+  
   gl.attachShader(program, fragmentShader);
+  
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
@@ -122,6 +169,8 @@ function initProgram (vertexid, fragmentid) {
   // uniforms that you add to your shaders
   program.uTheTexture = gl.getUniformLocation (program, 'theTexture');
   program.uTheta = gl.getUniformLocation (program, 'theta');
+  
+  
     
   return program;
 }
@@ -295,6 +344,7 @@ function bindVAO (shape, program) {
 
     // Read, compile, and link your shaders
     sphereGlobeProgram = initProgram('sphereMap-V', 'sphereMap-F');
+    sphereGlobeProgram2 = initProgram('sphereMap-V', 'sphereMap-E');
     
     // create and bind your current object
     createShapes();
